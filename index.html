@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Romantic Heart</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0005;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: Georgia, 'Times New Roman', serif;
+    overflow: hidden;
+  }
+
+  .stars {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .star {
+    position: absolute;
+    background: #fff;
+    border-radius: 50%;
+    animation: twinkle var(--dur) ease-in-out infinite alternate;
+  }
+  @keyframes twinkle {
+    from { opacity: 0.1; transform: scale(0.8); }
+    to   { opacity: 0.9; transform: scale(1.2); }
+  }
+
+  .scene {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .rose-wrap {
+    position: relative;
+    width: 120px;
+    height: 160px;
+    margin-bottom: -18px;
+    z-index: 2;
+  }
+  .rose-wrap svg {
+    width: 100%; height: 100%;
+    filter: drop-shadow(0 0 12px rgba(140,0,40,0.7));
+  }
+
+  .heart-wrap {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .heart-svg {
+    animation: bloom 2.4s cubic-bezier(0.34,1.56,0.64,1) forwards,
+               heartbeat 1.4s ease-in-out 2.4s infinite;
+    transform-origin: center bottom;
+    filter: drop-shadow(0 0 18px rgba(120,0,30,0.8));
+    transform: scale(0);
+  }
+
+  @keyframes bloom {
+    0%   { transform: scale(0) translateY(60px); opacity: 0; }
+    60%  { transform: scale(1.12) translateY(-8px); opacity: 1; }
+    80%  { transform: scale(0.95) translateY(2px); opacity: 1; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+  }
+
+  @keyframes heartbeat {
+    0%   { transform: scale(1); }
+    14%  { transform: scale(1.09); }
+    28%  { transform: scale(1); }
+    42%  { transform: scale(1.06); }
+    70%  { transform: scale(1); }
+    100% { transform: scale(1); }
+  }
+
+  .petal {
+    position: absolute;
+    width: 12px; height: 18px;
+    background: radial-gradient(ellipse at 50% 30%, #ff6b8a, #8b0022);
+    border-radius: 50% 50% 50% 0;
+    opacity: 0;
+    pointer-events: none;
+    animation: petalFly 1.8s ease-out forwards;
+  }
+  @keyframes petalFly {
+    0%   { opacity: 1; transform: translate(0,0) rotate(var(--r)) scale(1); }
+    100% { opacity: 0; transform: translate(var(--tx), var(--ty)) rotate(calc(var(--r) + 180deg)) scale(0.4); }
+  }
+
+  .sparkle {
+    position: absolute;
+    width: 6px; height: 6px;
+    background: #ffd6e7;
+    border-radius: 50%;
+    opacity: 0;
+    animation: sparkleFly 1.4s ease-out forwards;
+    animation-delay: var(--sd);
+  }
+  @keyframes sparkleFly {
+    0%   { opacity: 1; transform: translate(0,0) scale(1.2); }
+    100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
+  }
+
+  .name-on-heart {
+    position: absolute;
+    top: 48%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: clamp(14px, 3.5vw, 22px);
+    font-weight: bold;
+    font-family: Georgia, serif;
+    letter-spacing: 2px;
+    text-align: center;
+    text-shadow: 0 0 12px rgba(255,120,150,0.9), 0 2px 4px rgba(0,0,0,0.6);
+    pointer-events: none;
+    white-space: nowrap;
+    opacity: 0;
+    animation: fadeInName 0.8s ease 2s forwards;
+    width: 90%;
+  }
+  @keyframes fadeInName {
+    from { opacity: 0; transform: translate(-50%, -40%); }
+    to   { opacity: 1; transform: translate(-50%, -50%); }
+  }
+
+  .float-heart {
+    position: fixed;
+    font-size: var(--fs);
+    opacity: 0;
+    animation: floatUp var(--dur2) ease-in infinite;
+    animation-delay: var(--del);
+    pointer-events: none;
+    z-index: 0;
+    color: #6b0020;
+  }
+  @keyframes floatUp {
+    0%   { opacity: 0; transform: translateY(0) scale(0.6) rotate(var(--rot)); }
+    20%  { opacity: 0.35; }
+    80%  { opacity: 0.2; }
+    100% { opacity: 0; transform: translateY(-100vh) scale(1.1) rotate(calc(var(--rot) + 40deg)); }
+  }
+
+  .input-area {
+    margin-top: 32px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    opacity: 0;
+    animation: fadeInName 0.7s ease 2.6s forwards;
+    z-index: 10;
+  }
+  .input-area input {
+    background: rgba(255,255,255,0.08);
+    border: 1.5px solid rgba(180, 30, 70, 0.6);
+    border-radius: 30px;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 15px;
+    font-family: Georgia, serif;
+    outline: none;
+    width: 200px;
+    text-align: center;
+    transition: border-color 0.3s, background 0.3s;
+    letter-spacing: 1px;
+  }
+  .input-area input::placeholder { color: rgba(255,180,200,0.5); }
+  .input-area input:focus {
+    border-color: #c0204a;
+    background: rgba(255,255,255,0.13);
+  }
+  .input-area button {
+    background: linear-gradient(135deg, #8b0022, #c0204a);
+    border: none;
+    border-radius: 30px;
+    color: #fff;
+    padding: 10px 22px;
+    font-size: 14px;
+    font-family: Georgia, serif;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 15px rgba(140,0,40,0.5);
+  }
+  .input-area button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(180,0,50,0.7);
+  }
+  .input-area button:active { transform: scale(0.97); }
+
+  .tagline {
+    color: rgba(255,180,200,0.55);
+    font-size: 13px;
+    margin-top: 14px;
+    letter-spacing: 2px;
+    font-style: italic;
+    opacity: 0;
+    animation: fadeInName 0.7s ease 3s forwards;
+    z-index: 10;
+  }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+<div id="floaters"></div>
+
+<div class="scene">
+
+  <!-- ROSE -->
+  <div class="rose-wrap">
+    <svg viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg">
+      <path d="M60 155 Q55 130 58 110 Q62 90 60 70" stroke="#2d6a2d" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M58 118 Q40 108 35 95 Q48 97 58 110 Z" fill="#2d6a2d"/>
+      <path d="M60 105 Q78 95 82 82 Q70 87 60 100 Z" fill="#2d8a2d"/>
+      <path d="M57 130 Q48 128 45 122" stroke="#1a4a1a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="60" cy="50" rx="18" ry="22" fill="#6b0020" opacity="0.7"/>
+      <ellipse cx="44" cy="56" rx="16" ry="20" fill="#8b0022" opacity="0.8" transform="rotate(-30 44 56)"/>
+      <ellipse cx="76" cy="56" rx="16" ry="20" fill="#8b0022" opacity="0.8" transform="rotate(30 76 56)"/>
+      <ellipse cx="48" cy="46" rx="15" ry="18" fill="#a00030" transform="rotate(-20 48 46)"/>
+      <ellipse cx="72" cy="46" rx="15" ry="18" fill="#a00030" transform="rotate(20 72 46)"/>
+      <ellipse cx="60" cy="38" rx="14" ry="18" fill="#a80034"/>
+      <ellipse cx="52" cy="42" rx="12" ry="14" fill="#c0204a" transform="rotate(-15 52 42)"/>
+      <ellipse cx="68" cy="42" rx="12" ry="14" fill="#c0204a" transform="rotate(15 68 42)"/>
+      <ellipse cx="60" cy="38" rx="10" ry="12" fill="#d4305a"/>
+      <ellipse cx="60" cy="36" rx="7" ry="9" fill="#e0406a"/>
+      <ellipse cx="60" cy="34" rx="4" ry="6" fill="#ea5070"/>
+      <ellipse cx="60" cy="45" rx="24" ry="28" fill="none" stroke="rgba(200,30,70,0.2)" stroke-width="8"/>
+    </svg>
+  </div>
+
+  <!-- HEART -->
+  <div class="heart-wrap" id="heartWrap">
+    <div style="position:relative; display:inline-block;" id="petalZone">
+      <svg class="heart-svg" id="heartSvg" viewBox="0 0 200 185" width="240" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="hg" cx="50%" cy="35%" r="60%">
+            <stop offset="0%"   stop-color="#d4305a"/>
+            <stop offset="50%"  stop-color="#8b0022"/>
+            <stop offset="100%" stop-color="#5a0012"/>
+          </radialGradient>
+          <radialGradient id="hglow" cx="40%" cy="30%" r="50%">
+            <stop offset="0%"  stop-color="rgba(255,100,140,0.4)"/>
+            <stop offset="100%" stop-color="rgba(255,100,140,0)"/>
+          </radialGradient>
+        </defs>
+        <path d="M100,165 C60,135 10,110 10,65 A40,40,0,0,1,100,50 A40,40,0,0,1,190,65 C190,110 140,135 100,165 Z"
+              fill="rgba(140,0,30,0.25)" transform="scale(1.12) translate(-9,-5)"/>
+        <path d="M100,165 C60,135 10,110 10,65 A40,40,0,0,1,100,50 A40,40,0,0,1,190,65 C190,110 140,135 100,165 Z"
+              fill="url(#hg)" stroke="#6b0018" stroke-width="1.5"/>
+        <path d="M100,165 C60,135 10,110 10,65 A40,40,0,0,1,100,50 A40,40,0,0,1,190,65 C190,110 140,135 100,165 Z"
+              fill="url(#hglow)"/>
+        <ellipse cx="72" cy="62" rx="16" ry="10" fill="rgba(255,180,200,0.18)" transform="rotate(-20 72 62)"/>
+      </svg>
+
+      <div class="name-on-heart" id="nameDisplay">♥</div>
+      <div id="burstZone" style="position:absolute;top:50%;left:50%;width:0;height:0;pointer-events:none;"></div>
+    </div>
+  </div>
+
+  <!-- INPUT -->
+  <div class="input-area">
+    <input type="text" id="nameInput" placeholder="Enter a name..." maxlength="20"/>
+    <button onclick="setName()">♥ Add</button>
+  </div>
+
+  <p class="tagline">— with love —</p>
+</div>
+
+<script>
+  // Stars
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 120; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = Math.random() * 2.5 + 0.5;
+    s.style.cssText = `
+      width:${sz}px; height:${sz}px;
+      top:${Math.random()*100}%;
+      left:${Math.random()*100}%;
+      --dur:${(Math.random()*3+1.5).toFixed(1)}s;
+      animation-delay:${(Math.random()*4).toFixed(1)}s;
+    `;
+    starsEl.appendChild(s);
+  }
+
+  // Floating hearts
+  const floaters = document.getElementById('floaters');
+  const heartChars = ['♥','❤','💕'];
+  for (let i = 0; i < 18; i++) {
+    const f = document.createElement('div');
+    f.className = 'float-heart';
+    f.textContent = heartChars[Math.floor(Math.random()*heartChars.length)];
+    f.style.cssText = `
+      left:${Math.random()*100}%;
+      bottom:${Math.random()*15}%;
+      --fs:${(Math.random()*20+10).toFixed(0)}px;
+      --dur2:${(Math.random()*8+7).toFixed(1)}s;
+      --del:${(Math.random()*10).toFixed(1)}s;
+      --rot:${(Math.random()*40-20).toFixed(0)}deg;
+    `;
+    floaters.appendChild(f);
+  }
+
+  // Set name
+  function setName() {
+    const raw = document.getElementById('nameInput').value.trim();
+    const name = raw || '♥';
+    const disp = document.getElementById('nameDisplay');
+    disp.style.animation = 'none';
+    disp.textContent = name;
+    void disp.offsetWidth;
+    disp.style.animation = '';
+    burst();
+    const hsvg = document.getElementById('heartSvg');
+    hsvg.style.animation = 'none';
+    void hsvg.offsetWidth;
+    hsvg.style.animation = 'heartbeat 0.5s ease 0s 1, heartbeat 1.4s ease-in-out 0.5s infinite';
+  }
+
+  // Burst effect
+  function burst() {
+    const zone = document.getElementById('burstZone');
+    for (let i = 0; i < 10; i++) {
+      const el = document.createElement('div');
+      el.className = 'petal';
+      const angle = (Math.PI * 2 / 10) * i;
+      const dist = 80 + Math.random() * 60;
+      el.style.cssText = `
+        --r:${(angle * 180 / Math.PI).toFixed(0)}deg;
+        --tx:${(Math.cos(angle)*dist).toFixed(0)}px;
+        --ty:${(Math.sin(angle)*dist).toFixed(0)}px;
+        animation-delay:${(Math.random()*0.2).toFixed(2)}s;
+      `;
+      zone.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    }
+    for (let i = 0; i < 16; i++) {
+      const sp = document.createElement('div');
+      sp.className = 'sparkle';
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 50 + Math.random() * 100;
+      sp.style.cssText = `
+        --tx:${(Math.cos(angle)*dist).toFixed(0)}px;
+        --ty:${(Math.sin(angle)*dist).toFixed(0)}px;
+        --sd:${(Math.random()*0.4).toFixed(2)}s;
+      `;
+      zone.appendChild(sp);
+      sp.addEventListener('animationend', () => sp.remove());
+    }
+  }
+
+  // Enter key support
+  document.getElementById('nameInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') setName();
+  });
+
+  // Initial bloom burst
+  setTimeout(() => burst(), 2500);
+</script>
+</body>
+</html>
